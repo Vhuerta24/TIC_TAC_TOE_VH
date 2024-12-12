@@ -66,7 +66,7 @@ int getMove(vector<char> board) {
         move--; // Convert to 0-indexed
 
         if (board[move] != 'X' && board[move] != 'O') {
-            return move; 
+            return move;
         }
         else {
             cout << "That spot is taken! Please choose another one.\n";
@@ -96,7 +96,7 @@ string chooseArchetype(char player) {
 }
 
 // Battle Tic-Tac-Toe gameplay
-void playBattleGame() {
+void playBattleGame(int& gamesPlayed, int& playerOneWins, int& playerTwoWins, int& ties) {
     vector<char> board = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
     char currentPlayer = 'X';
     string archetypes[2];
@@ -132,54 +132,88 @@ void playBattleGame() {
             displayBoard(board);
             cout << "Player " << currentPlayer << " wins, congratulations!!\n";
             gameFinished = true;
+            if (currentPlayer == 'X') {
+                playerOneWins++;
+            }
+            else {
+                playerTwoWins++;
+            }
         }
         else if (isDraw(board)) {
             displayBoard(board);
             cout << "It's a draw!\n";
             gameFinished = true;
+            ties++;
         }
         else {
             currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
         }
     }
+
+    gamesPlayed++;
+}
+
+// Regular Tic-Tac-Toe gameplay
+void playRegularGame(int& gamesPlayed, int& playerOneWins, int& playerTwoWins, int& ties) {
+    vector<char> board = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+    char currentPlayer = 'X';
+    bool gameFinished = false;
+
+    cout << "\nStarting Regular Tic-Tac-Toe!\n";
+
+    while (!gameFinished) {
+        displayBoard(board);
+        int move = getMove(board);
+        board[move] = currentPlayer;
+
+        if (select_winner(board, currentPlayer, "")) {
+            displayBoard(board);
+            cout << "Player " << currentPlayer << " wins, congratulations!!\n";
+            gameFinished = true;
+            if (currentPlayer == 'X') {
+                playerOneWins++;
+            }
+            else {
+                playerTwoWins++;
+            }
+        }
+        else if (isDraw(board)) {
+            displayBoard(board);
+            cout << "It's a draw!\n";
+            gameFinished = true;
+            ties++;
+        }
+        else {
+            currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+        }
+    }
+
+    gamesPlayed++;
+}
+
+// Function to print the game report
+void generateReport(int gamesPlayed, int playerOneWins, int playerTwoWins, int ties) {
+    // Print the report to the console
+    cout << "\nGame Report\n";
+    cout << "--------------------\n";
+    cout << "Total Games Played: " << gamesPlayed << "\n";
+    cout << "Player 1 Wins (X): " << playerOneWins << "\n";
+    cout << "Player 2 Wins (O): " << playerTwoWins << "\n";
+    cout << "Ties: " << ties << "\n";
 }
 
 // Main game function
-void playGame() {
+void playGame(int& gamesPlayed, int& playerOneWins, int& playerTwoWins, int& ties) {
     char gameType;
     cout << "Welcome to Tic-Tac-Toe!\n";
     cout << "Please choose a game type: (R)egular or (B)attle: ";
     cin >> gameType;
 
     if (gameType == 'r' || gameType == 'R') {
-        vector<char> board = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-        char currentPlayer = 'X';
-        bool gameFinished = false;
-
-        cout << "\nStarting Regular Tic-Tac-Toe!\n";
-
-        while (!gameFinished) {
-            displayBoard(board);
-            int move = getMove(board);
-            board[move] = currentPlayer;
-
-            if (select_winner(board, currentPlayer, "")) {
-                displayBoard(board);
-                cout << "Player " << currentPlayer << " wins, congratulations!!\n";
-                gameFinished = true;
-            }
-            else if (isDraw(board)) {
-                displayBoard(board);
-                cout << "It's a draw!\n";
-                gameFinished = true;
-            }
-            else {
-                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-            }
-        }
+        playRegularGame(gamesPlayed, playerOneWins, playerTwoWins, ties);
     }
     else if (gameType == 'b' || gameType == 'B') {
-        playBattleGame();
+        playBattleGame(gamesPlayed, playerOneWins, playerTwoWins, ties);
     }
     else {
         cout << "Invalid choice! Exiting.\n";
@@ -188,13 +222,22 @@ void playGame() {
 
 // Main function
 int main() {
+    int gamesPlayed = 0;
+    int playerOneWins = 0;
+    int playerTwoWins = 0;
+    int ties = 0;
+
     char playAgain;
     do {
-        playGame();
+        playGame(gamesPlayed, playerOneWins, playerTwoWins, ties);
+
         cout << "Would you like to play again? (y/n): ";
         cin >> playAgain;
         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
     } while (playAgain == 'y' || playAgain == 'Y');
+
+    // Generate the report after the game loop finishes
+    generateReport(gamesPlayed, playerOneWins, playerTwoWins, ties);
 
     cout << "Thank you for playing, Goodbye!\n";
     return 0;
